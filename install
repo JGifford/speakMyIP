@@ -1,0 +1,7 @@
+#!/bin/bash
+
+apt-get install espeak
+
+cd /etc/init.d
+sudo chmod a+x speakMyIPs
+sudo update-rc.d -f speakMyIPs defaults
