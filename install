@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Inspired by https://darrenjw2.wordpress.com/2012/11/28/getting-a-headless-raspberry-pi-to-speak-its/
 apt-get install espeak
 
 cd /etc/init.d

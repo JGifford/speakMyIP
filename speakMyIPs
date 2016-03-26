@@ -1,5 +1,7 @@
 #! /bin/sh
-# /etc/init.d/sayIPbs
+
+# Inspired by https://darrenjw2.wordpress.com/2012/11/28/getting-a-headless-raspberry-pi-to-speak-its/
+# /etc/init.d/speakMyIPs
 ## Some things that run always
 # Carry out specific functions when asked to by the system
 case "$1" in  start)
