@@ -1,22 +1,61 @@
 #! /bin/sh
 
-# Inspired by https://darrenjw2.wordpress.com/2012/11/28/getting-a-headless-raspberry-pi-to-speak-its/
-# /etc/init.d/speakMyIPs
-## Some things that run always
-# Carry out specific functions when asked to by the system
-case "$1" in  start)
-    echo "Starting script sayIPbs "
-    sleep 5
-    public=`curl ifconfig.me`
-    private=`hostname -I`
-    string="public address is $public and private address is $private"
-    echo $string | espeak -s 120 -v en-uk
-    sleep 2
-    echo $string | espeak -s 120 -v en-uk
-    ;;  stop)    
-echo "Stopping script sayIPbs"
-    ;;  *)
-    echo "Usage: /etc/init.d/sayIPbs {start|stop}"
-    exit 1
-    ;;esac
-exit 0
+dig=/usr/bin/dig
+python=/usr/bin/python3
+hostname=/bin/hostname
+
+#########################################################
+# For cleanup, see https://gist.github.com/naholyr/4275302#file-service-sh
+###########
+me=`basename "$0"`
+publicString=""
+privateString=""
+# Use "dig" to figure out our external/WAN/public address
+[ -f "$dig" ] && myWANip=`$dig +time=5 +short myip.opendns.com @resolver1.opendns.com`
+
+case "$1" in
+    start)
+	echo "Starting script $me"
+
+	# Determine our Public Address
+	echo " -- determining our Public Address"
+	# There are a variety of reasons this might not work:
+	#  - dig might not be installed
+	#  - we might not have a WAN IP address
+	#  - OpenDNS' DNS server(s) might be blocked (or down)
+	[ "$myWANip" ] && publicString="public IP: $myWANip &"
+
+	# Determine our Private Address(es)
+	echo " -- determining our Private Address(es)"
+	private=`$hostname -I`
+	privateString="private IP(s): $private"
+
+	# Template construction
+	string=$publicString" "$privateString
+	echo $string # to stdout
+
+	# if python installed, then try to talk to the SenseHat
+	if [ -f $python ]
+	then
+	    $python <<EOF
+from sense_hat import SenseHat
+sense = SenseHat()
+sense.show_message("$string")
+sense.show_message("$string")
+EOF
+	fi
+    
+	# echo $string | espeak -s 120 -v en-uk
+	echo 0
+	;;  
+
+    stop)    
+	echo "Stopping script $me"
+	echo 0
+	;;  
+
+    *)
+	echo "Usage: /etc/init.d/$me {start|stop}"
+	exit 1
+	;;
+esac

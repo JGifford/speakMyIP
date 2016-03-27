@@ -3,6 +3,13 @@
 # Inspired by https://darrenjw2.wordpress.com/2012/11/28/getting-a-headless-raspberry-pi-to-speak-its/
 apt-get install espeak
 
+
+# to get dig
+sudo apt-get update
+sudo apt-get install dnsutils
+
+sudo apt-get install curl
+
 cd /etc/init.d
 sudo chmod a+x speakMyIPs
 sudo update-rc.d -f speakMyIPs defaults
